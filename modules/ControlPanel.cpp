@@ -6,8 +6,6 @@
 
 
 void ControlPanel::Render(bool& connection_emitted, bool& autotune_enable, std::vector<std::string>& logs) {
-//    ImGui::SetNextWindowSize(ImVec2(window_width * 1 / 3, window_height)); // Set "New Window" size to 1/3 of SDL window width and full height
-//    ImGui::SetNextWindowPos(ImVec2(window_position_x, window_position_y)); // Set "New Window" position to top left corner
 
     if (ImGui::Begin("Control panel")) // begin window
     {
@@ -18,9 +16,14 @@ void ControlPanel::Render(bool& connection_emitted, bool& autotune_enable, std::
             connection_emitted = !connection_emitted;
         }
         if(ImGui::Button(autotune_button_label.c_str())){
-            autotune_button_label = (autotune_button_label == "Enable") ? "Disable" : "Enable";
+            autotune_button_label = autotune_enable ? "Disable" : "Enable";
             autotune_enable = !autotune_enable;
         }
+        ImGui::Separator();
+        ImGui::SliderFloat("Kp", &slider_kp, -1, 1);
+        ImGui::SliderFloat("Ki", &slider_ki, -1, 1);
+        ImGui::SliderFloat("Kd", &slider_kd, -1, 1);
+        ImGui::SliderFloat("max average error", &slider_error, 0.0005, 0.00001, "%.5f", ImGuiSliderFlags_NoRoundToFormat);
         ImGui::Separator();
         if(ImGui::BeginChild("Logs")){
             for (const std::string& log : logs){

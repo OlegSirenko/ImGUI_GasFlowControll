@@ -102,24 +102,7 @@ int main(int, char**)
     ImGui_ImplWin32_Init(hwnd);
     ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 
-    // Load Fonts
-    // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-    // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-    // - If the file cannot be loaded, the function will return a nullptr. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-    // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-    // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality font rendering.
-    // - Read 'docs/FONTS.md' for more instructions and details.
-    // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-    //io.Fonts->AddFontDefault();
-    //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-    //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-    //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
-    //IM_ASSERT(font != nullptr);
-
     io.Fonts->AddFontFromFileTTF(R"(c:\Windows\Fonts\impact.ttf)", 15.0f);
-
 
     // Our state
     bool show_demo_window = false;
@@ -136,20 +119,17 @@ int main(int, char**)
     bool attach_window= false;
     auto start = std::chrono::system_clock::now();
 
-    double setpoint = 0.0;
-    double kp = 0.025;
-    double ki = 0.064;
-    double kd = 0.28;
 
+    double setpoint = 0.0;
 
     ControlPanel controlPanel(window_width, window_height, window_position_x, window_position_y);
     PlotWindow plotWindow(window_width, window_height, window_position_x, window_position_y, attach_window);
     PID pid;
-    pid.Init(kp, ki, kd);
+    pid.Init(controlPanel.slider_kp, controlPanel.slider_ki, controlPanel.slider_kd);
 
     std::deque<double> recent_errors;
     double sum_errors = 0.0;
-    const std::size_t max_errors_size = 50;
+    const std::size_t max_errors_size = 200;
 
     std::vector<std::string> logs = {
             "Application opened successfully",
@@ -187,13 +167,12 @@ int main(int, char**)
         // Calculate the time elapsed since the start of the application in seconds
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
         auto current_time = elapsed.count();
-//        std::cout<<current_time<<std::endl;
         //ImPlot::ShowDemoWindow();
         if(connection_emitted){
 
             double periodic = sin(x);
             double current_data = periodic ;
-            x += 1;
+            x += 0.5;
 
             double error = setpoint - current_data;
             pid.UpdateError(error);
@@ -212,17 +191,31 @@ int main(int, char**)
                         std::to_string(pid.Ki) + " " +
                         std::to_string(pid.Kd );
                 logs.push_back(output_autotune);
-                if(abs(average_error) < 0.2){
+                if(abs(average_error) < controlPanel.slider_error){
                     autotune_enabled= false;
+                    output_autotune = "Autotuning ended with " +
+                                                  std::to_string(pid.Kp ) + " " +
+                                                  std::to_string(pid.Ki) + " " +
+                                                  std::to_string(pid.Kd )+
+                                                  "\n Average Error == " + std::to_string(average_error);
+                    logs.push_back(output_autotune);
+                    controlPanel.slider_kp = pid.Kp;
+                    controlPanel.slider_ki = pid.Ki;
+                    controlPanel.slider_kd = pid.Kd;
                 }
                 pid.AutoTuneController(average_error);
 
             }
-            //static double now = (double)time(nullptr);
-            plotWindow.Render(connection_emitted, current_time, current_data, current_data-pid.GetSteerValue()); //  with PID Output data
+            else{
+                pid.Kp = controlPanel.slider_kp;
+                pid.Ki = controlPanel.slider_ki;
+                pid.Kd = controlPanel.slider_kd;
+            }
+            plotWindow.Render(connection_emitted, current_time, current_data, pid.GetSteerValue()); //  with PID Output data
         }
 
         controlPanel.Render(connection_emitted, autotune_enabled, logs);
+
 
         // Rendering
         ImGui::Render();

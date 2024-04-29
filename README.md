@@ -25,6 +25,7 @@ This repository is first part of project: **Desktop application**.
 * We lightly changed code of [jfoshea's PID-controller with auto-tuning](https://github.com/jfoshea/PID-Controller)
 * For creating AppImage for Linux machines we used [LinuxDeploy utility](https://github.com/linuxdeploy/linuxdeploy)
 * For creating MSI installer we used [Wix Toolset v3.11](https://github.com/wixtoolset/wix3)
+* For showing plots we used [ImPlot lib for ImGui](https://github.com/epezent/implot)
 
 ## How to install
 
