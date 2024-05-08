@@ -19,12 +19,15 @@ add_executable(GasFlowControlMonitoringApp main.cpp
         modules/PID.cpp
 #        modules/SocketModule.cpp
         ${app_icon_resource_windows}
+        resources/bruceFontEmbedded_utf_8.cpp
+        resources/ExoFontEmbedded_utf8.cpp
+        modules/mainMenu.cpp
 )
 
-
+add_executable(CompileFonts imgui/misc/fonts/binary_to_compressed_c.cpp)
 
 set(CMAKE_EXE_LINKER_FLAGS " -static")
-target_link_libraries(GasFlowControlMonitoringApp PUBLIC imgui imgui-win32 imgui-dx11 d3dcompiler dwmapi
-)
-target_link_options(GasFlowControlMonitoringApp PRIVATE -mwindows)
+target_link_libraries(GasFlowControlMonitoringApp PUBLIC imgui imgui-win32 imgui-dx11 d3dcompiler dwmapi)
+
+#target_link_options(GasFlowControlMonitoringApp PRIVATE -mwindows)
 

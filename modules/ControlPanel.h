@@ -34,6 +34,8 @@ public:
     float slider_ki = 0.064;
     float slider_kd = 0.28;
     float slider_error = 0.0004;
+    std::string ip_preset = "255.255.255.255";
+    int port_preset = 5050;
 };
 
 

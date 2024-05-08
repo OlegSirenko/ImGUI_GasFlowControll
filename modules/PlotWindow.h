@@ -6,8 +6,6 @@
 #define IMGUI_GASFLOWCONTROLL_PLOTWINDOW_H
 
 #include "imgui.h"
-#include "imgui_impl_sdl2.h"
-#include "imgui_impl_opengl2.h"
 #include "implot.h"
 #include <iostream>
 #include <vector>

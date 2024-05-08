@@ -1,7 +1,6 @@
 # Monitoring for Gas Flow Control System
 ![Logo](resources/GasFlowControlIcon_png.png)
 ![The appearance of the application](resources/img.png)
-
 ## Overview
 
 The Gas Flow Control System is a comprehensive solution

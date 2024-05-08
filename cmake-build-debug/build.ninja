@@ -88,6 +88,30 @@ build CMakeFiles/GasFlowControlMonitoringApp.dir/resources/icon_preporation/favi
   OBJECT_DIR = CMakeFiles\GasFlowControlMonitoringApp.dir
   OBJECT_FILE_DIR = CMakeFiles\GasFlowControlMonitoringApp.dir\resources\icon_preporation
 
+build CMakeFiles/GasFlowControlMonitoringApp.dir/resources/bruceFontEmbedded_utf_8.cpp.obj: CXX_COMPILER__GasFlowControlMonitoringApp_unscanned_Debug D$:/Code/ImGUI_GasFlowControll/resources/bruceFontEmbedded_utf_8.cpp || cmake_object_order_depends_target_GasFlowControlMonitoringApp
+  DEFINES = -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS=1 -DIMGUI_DISABLE_OBSOLETE_KEYIO=1 -DIMGUI_ENABLE_FREETYPE=1
+  DEP_FILE = CMakeFiles\GasFlowControlMonitoringApp.dir\resources\bruceFontEmbedded_utf_8.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -ID:/Code/ImGUI_GasFlowControll/modules -ID:/Code/ImGUI_GasFlowControll/imgui -IC:/Users/TehnokraT/.vcpkg-clion/vcpkg/installed/x64-windows/include -isystem D:/Code/ImGUI_GasFlowControll/imgui/backends
+  OBJECT_DIR = CMakeFiles\GasFlowControlMonitoringApp.dir
+  OBJECT_FILE_DIR = CMakeFiles\GasFlowControlMonitoringApp.dir\resources
+
+build CMakeFiles/GasFlowControlMonitoringApp.dir/resources/ExoFontEmbedded_utf8.cpp.obj: CXX_COMPILER__GasFlowControlMonitoringApp_unscanned_Debug D$:/Code/ImGUI_GasFlowControll/resources/ExoFontEmbedded_utf8.cpp || cmake_object_order_depends_target_GasFlowControlMonitoringApp
+  DEFINES = -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS=1 -DIMGUI_DISABLE_OBSOLETE_KEYIO=1 -DIMGUI_ENABLE_FREETYPE=1
+  DEP_FILE = CMakeFiles\GasFlowControlMonitoringApp.dir\resources\ExoFontEmbedded_utf8.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -ID:/Code/ImGUI_GasFlowControll/modules -ID:/Code/ImGUI_GasFlowControll/imgui -IC:/Users/TehnokraT/.vcpkg-clion/vcpkg/installed/x64-windows/include -isystem D:/Code/ImGUI_GasFlowControll/imgui/backends
+  OBJECT_DIR = CMakeFiles\GasFlowControlMonitoringApp.dir
+  OBJECT_FILE_DIR = CMakeFiles\GasFlowControlMonitoringApp.dir\resources
+
+build CMakeFiles/GasFlowControlMonitoringApp.dir/modules/mainMenu.cpp.obj: CXX_COMPILER__GasFlowControlMonitoringApp_unscanned_Debug D$:/Code/ImGUI_GasFlowControll/modules/mainMenu.cpp || cmake_object_order_depends_target_GasFlowControlMonitoringApp
+  DEFINES = -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS=1 -DIMGUI_DISABLE_OBSOLETE_KEYIO=1 -DIMGUI_ENABLE_FREETYPE=1
+  DEP_FILE = CMakeFiles\GasFlowControlMonitoringApp.dir\modules\mainMenu.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -ID:/Code/ImGUI_GasFlowControll/modules -ID:/Code/ImGUI_GasFlowControll/imgui -IC:/Users/TehnokraT/.vcpkg-clion/vcpkg/installed/x64-windows/include -isystem D:/Code/ImGUI_GasFlowControll/imgui/backends
+  OBJECT_DIR = CMakeFiles\GasFlowControlMonitoringApp.dir
+  OBJECT_FILE_DIR = CMakeFiles\GasFlowControlMonitoringApp.dir\modules
+
 build CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/imgui.cpp.obj: CXX_COMPILER__GasFlowControlMonitoringApp_unscanned_Debug D$:/Code/ImGUI_GasFlowControll/imgui/imgui.cpp || cmake_object_order_depends_target_GasFlowControlMonitoringApp
   DEFINES = -DIMGUI_DISABLE_OBSOLETE_FUNCTIONS=1 -DIMGUI_DISABLE_OBSOLETE_KEYIO=1 -DIMGUI_ENABLE_FREETYPE=1
   DEP_FILE = CMakeFiles\GasFlowControlMonitoringApp.dir\imgui\imgui.cpp.obj.d
@@ -184,9 +208,9 @@ build CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/backends/imgui_impl_dx11.
 #############################################
 # Link the executable GasFlowControlMonitoringApp.exe
 
-build GasFlowControlMonitoringApp.exe: CXX_EXECUTABLE_LINKER__GasFlowControlMonitoringApp_Debug CMakeFiles/GasFlowControlMonitoringApp.dir/main.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/modules/PlotWindow.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/modules/ControlPanel.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/modules/PID.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/resources/icon_preporation/favimage.rc.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/imgui.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/imgui_demo.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/imgui_draw.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/imgui_tables.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/imgui_widgets.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/implot.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/implot_demo.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/implot_items.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/misc/freetype/imgui_freetype.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/backends/imgui_impl_win32.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/backends/imgui_impl_dx11.cpp.obj | C$:/Users/TehnokraT/.vcpkg-clion/vcpkg/installed/x64-windows/debug/lib/freetyped.lib
+build GasFlowControlMonitoringApp.exe: CXX_EXECUTABLE_LINKER__GasFlowControlMonitoringApp_Debug CMakeFiles/GasFlowControlMonitoringApp.dir/main.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/modules/PlotWindow.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/modules/ControlPanel.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/modules/PID.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/resources/icon_preporation/favimage.rc.obj CMakeFiles/GasFlowControlMonitoringApp.dir/resources/bruceFontEmbedded_utf_8.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/resources/ExoFontEmbedded_utf8.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/modules/mainMenu.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/imgui.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/imgui_demo.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/imgui_draw.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/imgui_tables.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/imgui_widgets.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/implot.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/implot_demo.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/implot_items.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/misc/freetype/imgui_freetype.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/backends/imgui_impl_win32.cpp.obj CMakeFiles/GasFlowControlMonitoringApp.dir/imgui/backends/imgui_impl_dx11.cpp.obj | C$:/Users/TehnokraT/.vcpkg-clion/vcpkg/installed/x64-windows/debug/lib/freetyped.lib
   FLAGS = -g
-  LINK_FLAGS = -static    -mwindows
+  LINK_FLAGS = -static
   LINK_LIBRARIES = -ld3dcompiler  -ldwmapi  C:/Users/TehnokraT/.vcpkg-clion/vcpkg/installed/x64-windows/debug/lib/freetyped.lib  -ld3d11  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\GasFlowControlMonitoringApp.dir
   POST_BUILD = C:\WINDOWS\system32\cmd.exe /C "cd /D D:\Code\ImGUI_GasFlowControll\cmake-build-debug && C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/TehnokraT/.vcpkg-clion/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary D:/Code/ImGUI_GasFlowControll/cmake-build-debug/GasFlowControlMonitoringApp.exe -installedDir C:/Users/TehnokraT/.vcpkg-clion/vcpkg/installed/x64-windows/debug/bin -OutVariable out"
@@ -194,6 +218,41 @@ build GasFlowControlMonitoringApp.exe: CXX_EXECUTABLE_LINKER__GasFlowControlMoni
   TARGET_FILE = GasFlowControlMonitoringApp.exe
   TARGET_IMPLIB = libGasFlowControlMonitoringApp.dll.a
   TARGET_PDB = GasFlowControlMonitoringApp.exe.dbg
+
+# =============================================================================
+# Object build statements for EXECUTABLE target CompileFonts
+
+
+#############################################
+# Order-only phony target for CompileFonts
+
+build cmake_object_order_depends_target_CompileFonts: phony || CMakeFiles/CompileFonts.dir
+
+build CMakeFiles/CompileFonts.dir/imgui/misc/fonts/binary_to_compressed_c.cpp.obj: CXX_COMPILER__CompileFonts_unscanned_Debug D$:/Code/ImGUI_GasFlowControll/imgui/misc/fonts/binary_to_compressed_c.cpp || cmake_object_order_depends_target_CompileFonts
+  DEP_FILE = CMakeFiles\CompileFonts.dir\imgui\misc\fonts\binary_to_compressed_c.cpp.obj.d
+  FLAGS = -g -fdiagnostics-color=always
+  INCLUDES = -ID:/Code/ImGUI_GasFlowControll/modules
+  OBJECT_DIR = CMakeFiles\CompileFonts.dir
+  OBJECT_FILE_DIR = CMakeFiles\CompileFonts.dir\imgui\misc\fonts
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target CompileFonts
+
+
+#############################################
+# Link the executable CompileFonts.exe
+
+build CompileFonts.exe: CXX_EXECUTABLE_LINKER__CompileFonts_Debug CMakeFiles/CompileFonts.dir/imgui/misc/fonts/binary_to_compressed_c.cpp.obj
+  FLAGS = -g
+  LINK_FLAGS = -static
+  LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  OBJECT_DIR = CMakeFiles\CompileFonts.dir
+  POST_BUILD = C:\WINDOWS\system32\cmd.exe /C "cd /D D:\Code\ImGUI_GasFlowControll\cmake-build-debug && C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noprofile -executionpolicy Bypass -file C:/Users/TehnokraT/.vcpkg-clion/vcpkg/scripts/buildsystems/msbuild/applocal.ps1 -targetBinary D:/Code/ImGUI_GasFlowControll/cmake-build-debug/CompileFonts.exe -installedDir C:/Users/TehnokraT/.vcpkg-clion/vcpkg/installed/x64-windows/debug/bin -OutVariable out"
+  PRE_LINK = cd .
+  TARGET_FILE = CompileFonts.exe
+  TARGET_IMPLIB = libCompileFonts.dll.a
+  TARGET_PDB = CompileFonts.exe.dbg
 
 
 #############################################
@@ -864,6 +923,8 @@ build imgui/rebuild_cache: phony imgui/CMakeFiles/rebuild_cache.util
 # =============================================================================
 # Target aliases.
 
+build CompileFonts: phony CompileFonts.exe
+
 build GasFlowControlMonitoringApp: phony GasFlowControlMonitoringApp.exe
 
 build example_win32_directx10: phony bin/example_win32_directx10.exe
@@ -894,7 +955,7 @@ build example_win32_opengl3.exe: phony bin/example_win32_opengl3.exe
 #############################################
 # Folder: D:/Code/ImGUI_GasFlowControll/cmake-build-debug
 
-build all: phony GasFlowControlMonitoringApp.exe imgui/all
+build all: phony GasFlowControlMonitoringApp.exe CompileFonts.exe imgui/all
 
 # =============================================================================
 
