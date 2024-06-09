@@ -6,7 +6,7 @@
 // - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
 // - Introduction, links and more at the top of imgui.cpp
 
-
+#include "winsock2.h"
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
@@ -24,6 +24,9 @@
 #include <deque>
 #include "resources/bruceFontEmbedded_utf_8.cpp"
 #include "resources/ExoFontEmbedded_utf8.cpp"
+#include "ServerModule.h"
+#include <thread>
+
 
 // Data
 static ID3D11Device*            g_pd3dDevice = nullptr;
@@ -37,9 +40,21 @@ bool CreateDeviceD3D(HWND hWnd);
 void CleanupDeviceD3D();
 void CreateRenderTarget();
 void CleanupRenderTarget();
+
+
+
+//void handle_events(bool&, SDL_Window*);
+void update_plot_windows(std::shared_ptr<tcp_server>& server,
+                         std::unordered_map<tcp_connection::pointer, std::unique_ptr<PlotWindow>>& plotWindowsMap,
+                         int window_width, int window_height, int window_position_x,
+                         int window_position_y, bool attach_window);
+
+void render_windows(std::shared_ptr<tcp_server>& server, std::unordered_map<tcp_connection::pointer, std::unique_ptr<PlotWindow>>& plotWindowsMap,  long current_time);
 void embraceTheDarkness();
 
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+
 
 // Main code
 int main(int, char**)
@@ -90,6 +105,8 @@ int main(int, char**)
 
     // Setup Dear ImGui style
     embraceTheDarkness();
+    ImGui::StyleColorsLight();
+
 
     // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
     ImGuiStyle& style = ImGui::GetStyle();
@@ -115,29 +132,38 @@ int main(int, char**)
     // Main loop
     bool done = false;
     bool connection_emitted = false;
-    bool autotune_enabled = false;
-    int window_height = 1080, window_width=720, window_position_x = 0, window_position_y = 0;
-    bool attach_window= false;
-    auto start = std::chrono::system_clock::now();
 
+    int window_height, window_width, window_position_x, window_position_y;
+
+    auto start = std::chrono::system_clock::now();
 
     double setpoint = 0.0;
 
-    ControlPanel controlPanel(window_width, window_height, window_position_x, window_position_y);
-    PlotWindow plotWindow(window_width, window_height, window_position_x, window_position_y, attach_window);
-    PID pid;
-    pid.Init(controlPanel.slider_kp, controlPanel.slider_ki, controlPanel.slider_kd);
+    // Init server context and thread
+    auto io_context = std::make_shared<boost::asio::io_context>();
+    auto server = std::make_shared<tcp_server>(*io_context);
 
-    std::deque<double> recent_errors;
-    double sum_errors = 0.0;
-    const std::size_t max_errors_size = 200;
+
+
+    std::unique_ptr<ControlPanel> controlPanel = std::make_unique<ControlPanel>(window_width, window_height, window_position_x, window_position_y);
+
+    std::unordered_map<tcp_connection::pointer, std::unique_ptr<PlotWindow>> plotWindowsMap;
 
     std::vector<std::string> logs = {
             "Application opened successfully",
             "Logging started...",
     };
 
-    double x = 0;
+
+    // Start server
+    std::thread server_thread([&io_context, &logs] {
+//        std::cout<<"Waiting for data... "<<std::endl;
+        logs.emplace_back("Server started");
+//        logs.emplace_back(); // ip address of server.
+        io_context->run();
+        logs.emplace_back("Server closed");
+    });
+
     while (!done){
         MSG msg;
         while (::PeekMessage(&msg, nullptr, 0U, 0U, PM_REMOVE))
@@ -164,63 +190,23 @@ int main(int, char**)
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
         ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-        auto now = std::chrono::system_clock::now();
-        // Calculate the time elapsed since the start of the application in seconds
+
+        auto now = std::chrono::system_clock::now();  // Calculate the time elapsed since the start of the application in seconds
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start);
         auto current_time = elapsed.count();
-        //ImPlot::ShowDemoWindow();
-
-        //ImGui::ShowDemoWindow();
 
         mainMenu::Render();
-        //std::cout<<"Ip address: "<<controlPanel.ip_preset<<" Port: "<<controlPanel.port_preset<<std::endl;
+
+        connection_emitted = server->get_connections_count() > 0;
+        controlPanel->num_connections = server->get_connections_count();
         if(connection_emitted){
+            update_plot_windows(server, plotWindowsMap, window_width, window_height, window_position_x, window_position_y, true);
+            // Render each PlotWindow
+            auto connections = server->get_connections();
 
-            double periodic = sin(x);
-            double current_data = periodic ;
-            x += 0.5;
-
-            double error = setpoint - current_data;
-            pid.UpdateError(error);
-
-            recent_errors.push_back(error);
-            sum_errors += error;
-            if (recent_errors.size() > max_errors_size) {
-                sum_errors -= recent_errors.front();
-                recent_errors.pop_front();
-            }
-
-            double average_error = sum_errors / recent_errors.size();
-            if (autotune_enabled) {
-                std::string output_autotune = "Started autotuning " +
-                        std::to_string(pid.Kp ) + " " +
-                        std::to_string(pid.Ki) + " " +
-                        std::to_string(pid.Kd );
-                logs.push_back(output_autotune);
-                if(abs(average_error) < controlPanel.slider_error){
-                    autotune_enabled= false;
-                    output_autotune = "Autotuning ended with " +
-                                                  std::to_string(pid.Kp ) + " " +
-                                                  std::to_string(pid.Ki) + " " +
-                                                  std::to_string(pid.Kd )+
-                                                  "\n Average Error == " + std::to_string(average_error);
-                    logs.push_back(output_autotune);
-                    controlPanel.slider_kp = pid.Kp;
-                    controlPanel.slider_ki = pid.Ki;
-                    controlPanel.slider_kd = pid.Kd;
-                }
-                pid.AutoTuneController(average_error);
-
-            }
-            else{
-                pid.Kp = controlPanel.slider_kp;
-                pid.Ki = controlPanel.slider_ki;
-                pid.Kd = controlPanel.slider_kd;
-            }
-            plotWindow.Render(connection_emitted, current_time, current_data, pid.GetSteerValue()); //  with PID Output data
+            render_windows(server, plotWindowsMap, current_time);
         }
-
-        controlPanel.Render(connection_emitted, autotune_enabled, logs);
+        controlPanel->Render(connection_emitted, logs);
 
 
         // Rendering
@@ -241,6 +227,8 @@ int main(int, char**)
     }
 
     // Cleanup
+    io_context->stop();
+    server_thread.join();
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
@@ -353,86 +341,36 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 
 
-void embraceTheDarkness()
-{
-    ImVec4* colors = ImGui::GetStyle().Colors;
-    colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-    colors[ImGuiCol_WindowBg]               = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
-    colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_PopupBg]                = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
-    colors[ImGuiCol_Border]                 = ImVec4(0.19f, 0.19f, 0.19f, 0.29f);
-    colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.24f);
-    colors[ImGuiCol_FrameBg]                = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);
-    colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.19f, 0.19f, 0.19f, 0.54f);
-    colors[ImGuiCol_FrameBgActive]          = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
-    colors[ImGuiCol_TitleBg]                = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_TitleBgActive]          = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
-    colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-    colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);
-    colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.34f, 0.34f, 0.34f, 0.54f);
-    colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.40f, 0.40f, 0.40f, 0.54f);
-    colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.56f, 0.56f, 0.56f, 0.54f);
-    colors[ImGuiCol_CheckMark]              = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-    colors[ImGuiCol_SliderGrab]             = ImVec4(0.34f, 0.34f, 0.34f, 0.54f);
-    colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.56f, 0.56f, 0.56f, 0.54f);
-    colors[ImGuiCol_Button]                 = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);
-    colors[ImGuiCol_ButtonHovered]          = ImVec4(0.19f, 0.19f, 0.19f, 0.54f);
-    colors[ImGuiCol_ButtonActive]           = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
-    colors[ImGuiCol_Header]                 = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
-    colors[ImGuiCol_HeaderHovered]          = ImVec4(0.00f, 0.00f, 0.00f, 0.36f);
-    colors[ImGuiCol_HeaderActive]           = ImVec4(0.20f, 0.22f, 0.23f, 0.33f);
-    colors[ImGuiCol_Separator]              = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
-    colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.44f, 0.44f, 0.44f, 0.29f);
-    colors[ImGuiCol_SeparatorActive]        = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
-    colors[ImGuiCol_ResizeGrip]             = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
-    colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.44f, 0.44f, 0.44f, 0.29f);
-    colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
-    colors[ImGuiCol_Tab]                    = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
-    colors[ImGuiCol_TabHovered]             = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-    colors[ImGuiCol_TabActive]              = ImVec4(0.20f, 0.20f, 0.20f, 0.36f);
-    colors[ImGuiCol_TabUnfocused]           = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
-    colors[ImGuiCol_TabUnfocusedActive]     = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-    colors[ImGuiCol_DockingPreview]         = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-    colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-    colors[ImGuiCol_PlotLines]              = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_PlotHistogram]          = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
-    colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
-    colors[ImGuiCol_TableBorderLight]       = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
-    colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
-    colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
-    colors[ImGuiCol_DragDropTarget]         = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-    colors[ImGuiCol_NavHighlight]           = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(0.00f, 0.00f, 0.00f, 0.70f);
-    colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(0.00f, 0.00f, 0.00f, 0.20f);
-    colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.00f, 0.00f, 0.00f, 0.35f);
+void update_plot_windows(std::shared_ptr<tcp_server>& server, std::unordered_map<tcp_connection::pointer, std::unique_ptr<PlotWindow>>& plotWindowsMap, int window_width, int window_height, int window_position_x, int window_position_y, bool attach_window) {
+    auto connections = server->get_connections();
+    // Remove any PlotWindows that don't have an associated connection
+    for (auto it = plotWindowsMap.begin(); it != plotWindowsMap.end(); ) {
+        if (std::find(connections.begin(), connections.end(), it->first) == connections.end()) {
+            it = plotWindowsMap.erase(it);
+        } else {
+            ++it;
+        }
+    }
 
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.WindowPadding                     = ImVec2(8.00f, 8.00f);
-    style.FramePadding                      = ImVec2(5.00f, 2.00f);
-    style.CellPadding                       = ImVec2(6.00f, 6.00f);
-    style.ItemSpacing                       = ImVec2(6.00f, 6.00f);
-    style.ItemInnerSpacing                  = ImVec2(6.00f, 6.00f);
-    style.TouchExtraPadding                 = ImVec2(0.00f, 0.00f);
-    style.IndentSpacing                     = 25;
-    style.ScrollbarSize                     = 15;
-    style.GrabMinSize                       = 10;
-    style.WindowBorderSize                  = 1;
-    style.ChildBorderSize                   = 1;
-    style.PopupBorderSize                   = 1;
-    style.FrameBorderSize                   = 1;
-    style.TabBorderSize                     = 1;
-    style.WindowRounding                    = 7;
-    style.ChildRounding                     = 4;
-    style.FrameRounding                     = 3;
-    style.PopupRounding                     = 4;
-    style.ScrollbarRounding                 = 9;
-    style.GrabRounding                      = 3;
-    style.LogSliderDeadzone                 = 4;
-    style.TabRounding                       = 4;
+    // Add a PlotWindow for any new connections
+    for (const auto& connection : connections) {
+        if (plotWindowsMap.find(connection) == plotWindowsMap.end()) {
+            plotWindowsMap[connection] = std::make_unique<PlotWindow>(window_width, window_height, window_position_x, window_position_y, attach_window);
+        }
+    }
+}
+
+
+void render_windows(std::shared_ptr<tcp_server>& server, std::unordered_map<tcp_connection::pointer, std::unique_ptr<PlotWindow>>& plotWindowsMap,  long current_time) {
+    auto connections = server->get_connections();
+    for (auto & connection : connections) {
+        auto& plotWindow = plotWindowsMap[connection];
+        std::string data(connection->get_latest_data());
+        if(!data.empty()){
+            double current_data_from_connection = std::stod(data);
+            std::string plot_window_name = connection->get_ip() + ":" + std::to_string(connection->get_port());
+            plotWindow->Render(current_time, current_data_from_connection, plot_window_name);
+            std::cout<<"PID Value: "<<plotWindow->pid.GetSteerValue()<<std::endl;
+        }
+    }
 }

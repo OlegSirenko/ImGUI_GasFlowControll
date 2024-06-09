@@ -65,13 +65,10 @@ void PID::UpdateError( double cte ) {
 ///  @retval: void
 ///=============================================================================
 void PID::AutoTuneController( double cte ) {
-
   this->p = { this->Kp, this->Ki, this->Kd };
   this->dp= { this->p_error, this->i_error, this->d_error };
-
   cout << __func__ <<":"<< __LINE__ << " p,i,d errors:" << this->p_error << " "<< this->i_error  << " " << this->d_error << endl;
   cout << __func__ <<":"<< __LINE__ << " P values " << this->p[0] << " "<< this->p[1]  << " " << this->p[2] << endl;
-
   switch ( this->tune_state ) 
   {
     case INCREASE_P:
@@ -80,7 +77,6 @@ void PID::AutoTuneController( double cte ) {
       cout << __LINE__ << " K_index, p[kp]: " << this->K_index << " " << this->p[K_index] << endl;
       cout << __LINE__ << " States (current, next): " << this->tune_state << " " << this->next_state << endl;
       break;
-
     case RESAMPLE_P:
       if( fabs( cte ) < fabs( this->best_error ) ) {
         this->best_error = cte;
@@ -94,14 +90,12 @@ void PID::AutoTuneController( double cte ) {
       cout << __LINE__ << " K_index, p[K_index]: " << this->K_index << " " << this->p[K_index] << endl;
       cout << __LINE__ << " States (current, next): " << this->tune_state << " " << this->next_state << endl;
       break;
-
     case DECREASE_2P:
       this->p[ this->K_index ] -= 2 * this->dp[ this->K_index ];
       this->next_state = RESAMPLE_2P;
       cout << __LINE__ << " K_index, p[K_index]: " << this->K_index << " " << this->p[K_index] << endl;
       cout << __LINE__ << " States (current, next): " << this->tune_state << " " << this->next_state << endl;
       break;
-
     case RESAMPLE_2P:
       if( fabs( cte ) < fabs( this->best_error ) ) {
         this->best_error = cte;
@@ -116,24 +110,19 @@ void PID::AutoTuneController( double cte ) {
       cout << __LINE__ << " K_index, p[K_index]: " << this->K_index << " " << this->p[K_index] << endl;
       cout << __LINE__ << " States (current, next): " << this->tune_state << " " << this->next_state << endl;
       break;
-
     default:
       cout << "Unknown State: " << this->tune_state << endl;
       this->next_state = INCREASE_P;
       break;
   }
-
   this->p_error = this->dp[0];
   this->i_error = this->dp[1];
   this->d_error = this->dp[2];
-
   this->Kp = this->p[0];
   this->Ki = this->p[1];
   this->Kd = this->p[2];
   cout << __func__ <<":"<< __LINE__ << " p,i,d errors:" << this->p_error << " "<< this->i_error  << " " << this->d_error << endl;
   cout << __func__ <<":"<< __LINE__ << " P values " << this->p[0] << " "<< this->p[1]  << " " << this->p[2] << endl;
- 
-  // Update state and index for next iteration
   this->tune_state = this->next_state;
   this->K_index = this->next_index;
 }
@@ -147,21 +136,17 @@ void PID::AutoTuneController( double cte ) {
 ///  @retval: Steer Value 
 ///=============================================================================
 double PID::GetSteerValue() {
+    double steer_value, value;
+    value = -Kp * this->p_error - Kd * this->d_error - Ki * this->i_error;
 
-  double steer_value, value;
-
-	value = -Kp * this->p_error - Kd * this->d_error - Ki * this->i_error;
-  
-  // Limit the steer angle between 1 to -1
-  if( value > 1 ) {
-    steer_value = 1;
-  }
-  else if ( value < -1 ) {
-    steer_value = -1;
-  }
-  else {
-    steer_value = value;
-  }
-  
-  return steer_value;
+    if( value > 1 ) {
+        steer_value = 1;
+    }
+    else if ( value < -1 ) {
+        steer_value = -1;
+    }
+    else {
+        steer_value = value;
+    }
+    return steer_value;
 }
